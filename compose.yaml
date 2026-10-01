@@ -20,10 +20,12 @@ services:
     image: devlikeapro/waha
     restart: unless-stopped
     environment:
-      WAHA_API_KEY: ${WAHA_API_KEY}
       # Envia apenas eventos de mensagem para a API Python.
       WHATSAPP_HOOK_URL: http://chatbot:8000/webhook
       WHATSAPP_HOOK_EVENTS: message
+      WAHA_NO_API_KEY: true
+      WAHA_DASHBOARD_NO_PASSWORD: true
+      WHATSAPP_SWAGGER_NO_PASSWORD: true
     # A interface do WAHA também fica acessível somente nesta máquina.
     ports:
       - "127.0.0.1:3000:3000"
