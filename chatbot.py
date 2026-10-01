@@ -1,39 +1,29 @@
+import os
+
 from dotenv import load_dotenv
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
 from langchain_groq import ChatGroq
 
 load_dotenv()
 
-def criar_chain_agente(banco_vetores):
+INSTRUCOES = """Você é um assistente pessoal que conversa em português do Brasil.
+Responda de forma clara, educada e adequada para todas as idades.
+Se pedirem conteúdo sexual explícito, assuntos relacionados a politica ou religião, instruções para violência ou atividades perigosas ou ilegais, não dê detalhes. Responda apenas: "Não sei responder a isso."""
 
-    prompt_template = ChatPromptTemplate.from_template(
-        """Você é um assistente de RH que responde perguntas sobre políticas internas da empresa.
-    Use APENAS as informações do contexto abaixo para responder.
-    Se não encontrar a resposta, diga claramente que não sabe responder.
-    Responda em português do Brasil, de forma clara e objetiva.
 
-    Contexto: {context}
+def responder(pergunta: str) -> str:
+    """Envia a pergunta ao Groq e retorna somente o texto da resposta."""
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError("Configure GROQ_API_KEY no arquivo .env.")
 
-    A pergunta: {question}
-
-    Resposta:"""
+    modelo = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
+        api_key=api_key,
     )
-
-    buscador_contexto = banco_vetores.as_retriever()
-
-    llm = ChatGroq(model="openai/gpt-oss-20b")
-
-    chain = (
-        {"context": buscador_contexto, "question": RunnablePassthrough()}
-        | prompt_template
-        | llm
-        | StrOutputParser()
+    resposta = modelo.invoke(
+        [
+            ("system", INSTRUCOES),
+            ("human", pergunta),
+        ]
     )
-
-    return chain
-
-
-def responder(pergunta):
-    return llm.invoke(pergunta)
+    return str(resposta.content).strip()
