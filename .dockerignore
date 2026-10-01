@@ -1,6 +1,11 @@
+# Segredos não devem ser copiados para a imagem Docker.
 .env
 .env.*
+
+# Não copie o ambiente virtual nem arquivos temporários do Python.
 .venv/
 __pycache__/
 *.py[cod]
+
+# O Git não é necessário dentro da imagem do chatbot.
 .git/

@@ -1,29 +1,35 @@
 services:
+  # API Python que recebe as mensagens e envia as respostas.
   chatbot:
     build: .
     restart: unless-stopped
     env_file: .env
     environment:
+      # Os contêineres conversam pelo nome do serviço na rede do Compose.
       WAHA_API_URL: http://waha:3000
       WAHA_SESSION: ${WAHA_SESSION:-default}
       WAHA_API_KEY: ${WAHA_API_KEY}
+    # Mantém a API do chatbot acessível somente nesta máquina.
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
       - waha
 
+  # Gateway que conecta o projeto à sessão do WhatsApp.
   waha:
     image: devlikeapro/waha
     restart: unless-stopped
     environment:
       WAHA_API_KEY: ${WAHA_API_KEY}
-      WAHA_DASHBOARD_NO_PASSWORD: "True"
+      # Envia apenas eventos de mensagem para a API Python.
       WHATSAPP_HOOK_URL: http://chatbot:8000/webhook
       WHATSAPP_HOOK_EVENTS: message
+    # A interface do WAHA também fica acessível somente nesta máquina.
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
       - waha_sessions:/app/.sessions
 
+# Preserva a sessão do WhatsApp mesmo quando os contêineres são recriados.
 volumes:
   waha_sessions:

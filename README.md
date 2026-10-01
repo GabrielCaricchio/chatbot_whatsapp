@@ -15,6 +15,7 @@ Bot simples que recebe mensagens pelo WAHA, gera respostas com a API do Groq e e
 3. Mantenha o arquivo `.env` privado. Ele não deve ser enviado ao Git.
 
 `GROQ_MODEL` é opcional; se não for configurado, o bot usa `openai/gpt-oss-20b`.
+No Compose, o endereço interno do WAHA é `http://waha:3000`; não troque `waha` por `localhost` dentro do contêiner.
 
 ## Executar
 
@@ -25,6 +26,12 @@ docker compose up --build -d
 ```
 
 Abra [http://localhost:3000](http://localhost:3000), conecte a sessão `default` lendo o QR code do WhatsApp e confirme que a sessão está ativa. O endereço do webhook e o evento `message` já estão configurados no `compose.yaml`.
+
+Se a imagem já estiver criada e você alterar o `.env`, reinicie os serviços para carregar as novas variáveis:
+
+```bash
+docker compose up -d
+```
 
 O endpoint que recebe os eventos é `POST http://localhost:8000/webhook`. Para conferir os registros:
 
