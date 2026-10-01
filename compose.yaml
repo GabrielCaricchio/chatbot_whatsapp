@@ -1,0 +1,29 @@
+services:
+  chatbot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      WAHA_API_URL: http://waha:3000
+      WAHA_SESSION: ${WAHA_SESSION:-default}
+      WAHA_API_KEY: ${WAHA_API_KEY}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - waha
+
+  waha:
+    image: devlikeapro/waha
+    restart: unless-stopped
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY}
+      WAHA_DASHBOARD_NO_PASSWORD: "True"
+      WHATSAPP_HOOK_URL: http://chatbot:8000/webhook
+      WHATSAPP_HOOK_EVENTS: message
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - waha_sessions:/app/.sessions
+
+volumes:
+  waha_sessions:
